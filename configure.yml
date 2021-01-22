@@ -1,0 +1,54 @@
+- hosts: localhost
+  tasks:
+    - name: add riccardomc key to riccardomc authorized keys
+      ansible.posix.authorized_key:
+        user: riccardomc
+        state: present
+        key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCdbG4o5IR8c+8n+z9y+TVRSEqylBsQumEsDZ7DUprCv8ZS5XcKbOvLMb7It8STg8zHzFQbbvkpQeSwstJ9q6fbbp2RdG/gbXxRscTYvnZ3f2shN9v0u1yry+wZIZTYeygZ1H0BgwHGO9/tEKloudzlxMUqaJXlpPIOCSDTDTC1qG967c3/uwlVSbord48PQYQ9WPfVq8ludX6+W7r64GMTRVVXtKeJNUBMPc29Tixlo+OjRWxb9F6SEEH0RIo44ZrYAlQJ6xTZk7PNyCyfgcJF0wxDk4UDw51YjmYSMzrjDr4lWs3Yk0oQxFOXpgdDxduMInZQcL674kxBSxkSe4oX riccardo.cefala@gmail.com"
+
+    - name: add user riccardomc to groups
+      user: 
+        name: riccardomc
+        groups:
+          - bluetooth
+          - sudo
+        append: yes
+
+    - name: add non-free repo
+      ansible.builtin.apt_repository:
+        repo: deb http://mirror.nl.leaseweb.net/debian/ buster main non-free
+        state: present
+
+    - name: add docker repository apt key
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+    - name: add docker repository
+      ansible.builtin.apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/debian buster stable
+        state: present
+
+    - name: install packages
+      apt:
+        update_cache: yes
+        pkg:
+          - firmware-iwlwifi
+          - virtualenv
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+
+    - name: GDM settings
+      copy:
+        dest: '/etc/gdm3/greeter.dconf-defaults'
+        content: |
+          [org/gnome/login-screen]
+          logo='/usr/share/images/vendor-logos/logo-text-version-128.png'
+          disable-user-list=false
+          banner-message-enable=true
+          banner-message-text='Ciao!'
+
+          [org/gnome/settings-daemon/plugins/power]
+          sleep-inactive-ac-timeout=0
+          sleep-inactive-ac-type='blank'
