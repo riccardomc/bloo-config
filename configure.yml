@@ -12,6 +12,7 @@
         groups:
           - bluetooth
           - sudo
+          - docker
         append: yes
 
     - name: add non-free repo
